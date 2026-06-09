@@ -1,0 +1,329 @@
+{
+  "name": "Edit Content",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "f23d092c-5aec-4ef6-bc55-151bfc7eac2b",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        2432,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "posts",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.target_id }}"
+            }
+          ]
+        }
+      },
+      "id": "999386b1-5a56-4c0f-84e9-16210d6a1c2f",
+      "name": "Get Current Post",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2672,
+        1744
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "full_prompt",
+              "stringValue": "=Ты профессиональный редактор. Исправь текст поста, следуя инструкции администратора. Верни ТОЛЬКО готовый текст без лишних вступлений, кавычек и комментариев.\n\nИСХОДНЫЙ ТЕКСТ:\n{{ $node[\"Get Current Post\"].json.content }}\n\nИНСТРУКЦИЯ АДМИНИСТРАТОРА:\n{{ $('Execute Workflow Trigger').item.json.instruction }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f6756701-6344-48ff-8ffe-21d4b777441c",
+      "name": "Prepare Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        2912,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "chatModel": "gpt-4o-mini",
+        "prompt": {
+          "messages": [
+            {
+              "content": "={{ $json.full_prompt }}"
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "id": "fb1ec304-0765-4e37-ac95-c3952476a9c7",
+      "name": "OpenAI Editor",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.1,
+      "position": [
+        3136,
+        1744
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "QxPaWKEKuAL8q5UB",
+          "name": "OpenAi account 345"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "posts",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Prepare Prompt').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $node[\"OpenAI Editor\"].json.message.content }}"
+            }
+          ]
+        }
+      },
+      "id": "69769bb9-6b33-4149-bd04-d94b17e53c94",
+      "name": "Update Post in DB",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        1744
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "tE8IN3d4WCV7rHQw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/tE8IN3d4WCV7rHQw",
+          "cachedResultName": "VK Inline Button Workflow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3616,
+        1744
+      ],
+      "id": "976f2d0c-5329-4769-adbd-c5949883713e",
+      "name": "Call 'VK Inline Button Workflow'"
+    },
+    {
+      "parameters": {
+        "content": "# Редактирование контента по тексту от администратора",
+        "height": 80,
+        "width": 1056
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2448,
+        1424
+      ],
+      "typeVersion": 1,
+      "id": "da8064e3-88c2-4040-959c-ada44935e05f",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Получаем ID строки, которую надо отредактировать и text от администратора, что надо поправить.",
+        "height": 336,
+        "width": 336
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2224,
+        1568
+      ],
+      "typeVersion": 1,
+      "id": "52938d86-8e18-4ca4-9790-2333e20cf614",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Получаем строку по ID",
+        "height": 336,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2608,
+        1568
+      ],
+      "typeVersion": 1,
+      "id": "d1cdef08-2b09-4d26-b130-96b6f2592d88",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Собираем Prompt для AI",
+        "height": 336,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2848,
+        1568
+      ],
+      "typeVersion": 1,
+      "id": "10a2225b-af7c-4c96-89e6-d09d5a36f255",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Получаем изменённый текст.",
+        "height": 336,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3088,
+        1568
+      ],
+      "typeVersion": 1,
+      "id": "67d139e4-786e-435f-83e6-e8e5bb321d9d",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Заменяем текст в таблице. Статус не меняем.",
+        "height": 336
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3312,
+        1568
+      ],
+      "typeVersion": 1,
+      "id": "1843d8af-5b57-46cc-a082-e3fff20849cc",
+      "name": "Sticky Note5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Current Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current Post": {
+      "main": [
+        [
+          {
+            "node": "Prepare Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Prompt": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Editor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Editor": {
+      "main": [
+        [
+          {
+            "node": "Update Post in DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Post in DB": {
+      "main": [
+        [
+          {
+            "node": "Call 'VK Inline Button Workflow'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'VK Inline Button Workflow'": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "esCmg3Bye5BL0S2D",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "6896776b-b4d2-4342-b6af-6dc7b5c4ffbd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f4300700b5a89163b88ad6a908ff9e3076c705e8b03a3f40f03ff2f29f7e4289"
+  },
+  "id": "swZ7E3JriOSm7hho",
+  "tags": []
+}

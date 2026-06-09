@@ -1,0 +1,1113 @@
+{
+  "name": "Callbacks",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vk-event",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3920,
+        2912
+      ],
+      "id": "d25422f7-1f10-4d68-84c1-34ab12fa7f55",
+      "name": "Webhook",
+      "webhookId": "f015f01b-8dc3-4803-aec1-507d6d1e2a7e"
+    },
+    {
+      "parameters": {
+        "content": "# Работа с VK\n# Ловим callbacks от вконтакте\n",
+        "height": 384,
+        "width": 336
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4032,
+        2688
+      ],
+      "typeVersion": 1,
+      "id": "4a8a1f6f-719d-4c5f-b467-e7a8e783abf9",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "592d5654",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -3072,
+        2032
+      ],
+      "name": "Respond to Webhook - testVK",
+      "id": "b4b71e5e-4f0a-416f-afeb-110a78335077",
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "ok",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -3104,
+        2880
+      ],
+      "name": "Respond to WebhookOK",
+      "id": "0a64e9cc-3e51-4312-9b0d-36dc78415a82",
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "posts",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "batch_id",
+              "condition": "eq",
+              "keyValue": "={{ JSON.parse($node[\"Webhook\"].json.body.object.message.payload).batch_id }}"
+            },
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "pending"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2096,
+        2896
+      ],
+      "id": "a8ace24d-9624-4e4c-a778-c135e2534334",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "029210e6-cbd8-4e3b-958a-cf0b4a762065",
+              "leftValue": "={{ $json.length }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1904,
+        2896
+      ],
+      "id": "8681e993-9d41-46cd-ad33-61f8c6ce3365",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "ok",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -3088,
+        3376
+      ],
+      "name": "Respond to WebhookOK1",
+      "id": "b732ca85-23d0-4493-8b22-691c542360e5",
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "swZ7E3JriOSm7hho",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/swZ7E3JriOSm7hho",
+          "cachedResultName": "EditContent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -2480,
+        3712
+      ],
+      "id": "bb841c62-169e-4ca4-996f-70277ae1d48c",
+      "name": "Call 'EditContent'"
+    },
+    {
+      "parameters": {
+        "content": "## Настройка сервера VK\n",
+        "height": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3136,
+        1920
+      ],
+      "typeVersion": 1,
+      "id": "1c1ae420-e231-40c9-a95c-a0bf3e62da26",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Обновление статуса в supabase в зависимости от выбора - одобрить / отклонить. И если одобрено, отправляем на публикацию в Publication",
+        "height": 464,
+        "width": 960
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3152,
+        2608
+      ],
+      "typeVersion": 1,
+      "id": "e0eb5602-425e-4c55-b36e-b81659c1e1f2",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "posts",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ JSON.parse($json.body.object.message.payload).id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ JSON.parse($json.body.object.message.payload).status }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2912,
+        2880
+      ],
+      "id": "66125ac7-bdc3-4623-a60f-5b1d41690de6",
+      "name": "Update Status",
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "ok",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -3088,
+        3712
+      ],
+      "name": "Respond to WebhookOK2",
+      "id": "1b11b613-aa8d-4210-9177-bf14d5a1b81d",
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "content": "# При нажатии кнопки редактировать ищем строки со статусом editing (проверка), сбрасываем их на pedding и обновляем статус текущей строки в supabase на editing",
+        "height": 368,
+        "width": 1072
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3152,
+        3152
+      ],
+      "typeVersion": 1,
+      "id": "5da2f137-e6f3-49f7-bb80-1aedfe10889e",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "# Если приходит текст, ищем в supabase строку со статусом editing, принимаем входящий текст как промпт",
+        "height": 320,
+        "width": 1072
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3152,
+        3568
+      ],
+      "typeVersion": 1,
+      "id": "2b18d916-9d3d-4289-a162-8c0322ba515e",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "posts",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "editing"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "pending"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2880,
+        3376
+      ],
+      "id": "a041a5c0-6805-4c61-9fdf-33a25ecf9487",
+      "name": "Reset Previous Edits",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "posts",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "editing"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2880,
+        3712
+      ],
+      "id": "cf48d4e3-3bd7-4182-9e87-70d509f676d1",
+      "name": "Find_ID_post_edit",
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "posts",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ JSON.parse($node[\"Webhook\"].json.body.object.message.payload).id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "editing"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2688,
+        3376
+      ],
+      "id": "f3795b12-5a9d-4fdd-9e6e-eb47b6ac3139",
+      "name": "Update Status Editing",
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3b4100a5-56c1-43e1-83c9-915b3dd30f1d",
+              "name": "target_id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "47af0213-2230-45a9-ad98-8ab113c1ebb3",
+              "name": "instruction",
+              "value": "={{ $('Webhook').item.json.body.object.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2672,
+        3712
+      ],
+      "id": "b1caacd2-19d9-4b0e-80fb-a25b58f0a2ff",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vk.com/method/messages.send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "peer_id",
+              "value": "13330125"
+            },
+            {
+              "name": "random_id",
+              "value": "={{ Math.floor(Math.random() * 2147483647) }}"
+            },
+            {
+              "name": "v",
+              "value": "5.199"
+            },
+            {
+              "name": "message",
+              "value": "✅ Текущий пакет обработан. Подгрузить следующие 3 поста?"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "keyboard",
+              "value": "={\n  \"inline\": true,\n  \"buttons\": [\n    [\n      {\n        \"action\": {\n          \"type\": \"text\",\n          \"label\": \"Да, давай еще\",\n          \"payload\": \"{\\\"status\\\":\\\"next_batch\\\"}\"\n        },\n        \"color\": \"positive\"\n      },\n      {\n        \"action\": {\n          \"type\": \"text\",\n          \"label\": \"Нет, хватит\",\n          \"payload\": \"{\\\"status\\\":\\\"stop\\\"}\"\n        },\n        \"color\": \"negative\"\n      }\n    ]\n  ]\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a980c06f-5fec-455a-a557-a92ddcd006b9",
+      "name": "VK Ask Next Batch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -1504,
+        2880
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "aSZaIFU7bYbuGD7X",
+          "name": "VK_bearer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Пакет постов обработан, можно приступать к следующему",
+        "height": 288,
+        "width": 1072
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3152,
+        3936
+      ],
+      "typeVersion": 1,
+      "id": "22bfe5c9-a992-4e8a-af5b-1e7d6dce7b93",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "# Запрос администратору: \n# Текущий пакет обработан. Подгрузить следующие 3 поста?",
+        "height": 464,
+        "width": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1648,
+        2608
+      ],
+      "typeVersion": 1,
+      "id": "970031c7-13cf-4a4c-83d9-5708ff1cb4a3",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "# Находим все строки с таким же batch_id и со статусом pedding. Если такие есть, то ничего не делаем. Если нет, то True",
+        "height": 464,
+        "width": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2160,
+        2608
+      ],
+      "typeVersion": 1,
+      "id": "68cfee23-51d2-4dea-91ec-bbc3fa5be570",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.type }}",
+                    "rightValue": "confirmation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "81f08764-3bfa-4577-a2e6-b2d1b2501017"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "confirmation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.type }}",
+                    "rightValue": "message_new",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "17d54525-f469-457c-a0b2-e02b1723c2a6"
+                  },
+                  {
+                    "leftValue": "={{ $json.body.object.message.from_id }}",
+                    "rightValue": 13330125,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "80eecc53-04ea-490b-879f-65ba4248e399"
+                  },
+                  {
+                    "leftValue": "={{ $json.body.object.message.text }}",
+                    "rightValue": "старт",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "fba040a6-047f-4451-975c-4748ff57a5f2"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Start"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.object.message.payload ? JSON.parse($json.body.object.message.payload).status : '' }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "68da2e62-ad1a-42ac-8d6f-9444ee03c7ab"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Approve"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.object.message.payload ? JSON.parse($json.body.object.message.payload).status : '' }}",
+                    "rightValue": "decline",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c46e9396-7105-4f4b-a31a-594eb6113188"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Decline"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.object.message.payload ? JSON.parse($json.body.object.message.payload).status : '' }}",
+                    "rightValue": "edit",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "2573d1b9-3c47-4e06-a8e4-85e4c51c7d71"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Edit_Button"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.type }}",
+                    "rightValue": "message_new",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "69153216-8a47-4906-bb2d-7180181eddef"
+                  },
+                  {
+                    "leftValue": "={{ $json.body.object.message.from_id }}",
+                    "rightValue": 13330125,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "077913dd-43d3-4b75-996f-6b87b123b44a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Admin_Prompt"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "2b3e43aa-f00d-4daa-877a-d33c20bec20f",
+                    "leftValue": "={{ $json.body.object.message.payload ? JSON.parse($json.body.object.message.payload).status : '' }}",
+                    "rightValue": "next_batch",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "next_batch"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a45e5c2c-bd8b-4f83-8319-b9938fb68c0b",
+      "name": "Switch_Fixed1",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -3664,
+        2832
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# Запуск генерации постов. (первый WF)",
+        "height": 272,
+        "width": 896
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3152,
+        2256
+      ],
+      "typeVersion": 1,
+      "id": "c470fabe-6a6e-41fe-9fdf-4b563680ac9a",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "zx5gV1HTX3Vtj4SM",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/zx5gV1HTX3Vtj4SM",
+          "cachedResultName": "AI Content Factory Floating CreateRow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -3072,
+        2352
+      ],
+      "id": "fab8208f-b484-43df-8f1e-555b74ae7ad6",
+      "name": "Call 'AI Content Factory Floating CreateRow'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ftCjBlqfWHdLUfRk",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/ftCjBlqfWHdLUfRk",
+          "cachedResultName": "Publication"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -2384,
+        2768
+      ],
+      "id": "657f70d0-5536-4d82-8346-6093584458f1",
+      "name": "Call Publication"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "62e7d3c2-c12f-4019-b254-39e2fa7a300d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Approve"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "cac11df6-8bd5-4ab9-b208-f3273af51dba",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "decline",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Decline"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -2688,
+        2880
+      ],
+      "id": "ac5caedd-308a-46f4-950d-b5009f0c9002",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "tE8IN3d4WCV7rHQw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/tE8IN3d4WCV7rHQw",
+          "cachedResultName": "VK button press processing"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -3088,
+        4048
+      ],
+      "id": "c9a2a17a-7785-4f3f-9812-456bc0acc0de",
+      "name": "Call 'VK button press processing'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch_Fixed1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to WebhookOK": {
+      "main": [
+        [
+          {
+            "node": "Update Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "VK Ask Next Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to WebhookOK1": {
+      "main": [
+        [
+          {
+            "node": "Reset Previous Edits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to WebhookOK2": {
+      "main": [
+        [
+          {
+            "node": "Find_ID_post_edit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reset Previous Edits": {
+      "main": [
+        [
+          {
+            "node": "Update Status Editing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find_ID_post_edit": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Call 'EditContent'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch_Fixed1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook - testVK",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'AI Content Factory Floating CreateRow'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to WebhookOK",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to WebhookOK",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to WebhookOK1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to WebhookOK2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'VK button press processing'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Publication": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Call Publication",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "esCmg3Bye5BL0S2D"
+  },
+  "versionId": "c440501e-d4b8-4e27-a2fd-4f56e84c6369",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f4300700b5a89163b88ad6a908ff9e3076c705e8b03a3f40f03ff2f29f7e4289"
+  },
+  "id": "RdD4K6j0bhP3Hbfk",
+  "tags": []
+}

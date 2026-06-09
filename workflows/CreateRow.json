@@ -1,0 +1,562 @@
+{
+  "name": "CreateRow",
+  "nodes": [
+    {
+      "parameters": {
+        "functionCode": "// Берем результаты из Tavily\nconst results = $input.all()[0].json.results;\n\n// Оставляем только те результаты, где текста больше 300 символов \n// (так мы отсеем короткие обрывки)\nconst filteredResults = results.filter(r => r.content && r.content.length > 300);\n\n// Если ничего длинного не нашлось, берем хотя бы то, что есть\nconst finalResults = filteredResults.length > 0 ? filteredResults : results;\n\nreturn finalResults.map(r => ({ json: { text: r.content } }));"
+      },
+      "id": "cce48ff0-e49a-42cb-ae36-c2bf5cd0c404",
+      "name": "Extract",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -2864,
+        2048
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "http://localhost"
+            },
+            {
+              "name": "X-Title",
+              "value": "n8n-content-factory"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"openai/gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Ты профессиональный контент-стратег для соцсетей.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"На основе текста ниже создай 3 разных поста про флоатинг.\\n\\n\" +\n        \"1. Экспертный (польза, факты)\\n\" +\n        \"2. Сторителлинг (личный опыт)\\n\" +\n        \"3. Провокационный (ломает миф или вызывает эмоцию)\\n\\n\" +\n        \"Ответ верни СТРОГО как JSON объект.\\n\" +\n\"Без markdown.\\n\" +\n\"Без ```.\\n\" +\n\"Без пояснений.\\n\" +\n\"Только JSON.\\n\\n\" +\n\"Формат:\\n\" +\n\"{\\n\" +\n'  \"expert\": \"текст\",\\n' +\n'  \"story\": \"текст\",\\n' +\n'  \"provocation\": \"текст\"\\n' +\n\"}\\n\\n\" +\n        \"Текст:\\n\" +\n        ($json.text || \"нет данных\")\n    }\n  ],\n  \"temperature\": 0.8\n} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -2656,
+        2048
+      ],
+      "id": "79575a15-9c61-4b21-bdb5-559ed0c67d0e",
+      "name": "HTTP Request OpenRouter",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "2v7q3pqcReZyrcNh",
+          "name": "openrouter.ai Bearer Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Генерация статьи и запись в supabase\n",
+        "height": 352,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3504,
+        1632
+      ],
+      "typeVersion": 1,
+      "id": "46dbcba2-66f1-4a68-80b9-7b6115cd4419",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "tE8IN3d4WCV7rHQw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/tE8IN3d4WCV7rHQw",
+          "cachedResultName": "VK Inline Button Workflow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -1856,
+        2048
+      ],
+      "id": "37375bfa-b999-42e4-8e1d-eaa0e5ce858b",
+      "name": "StartPostVK"
+    },
+    {
+      "parameters": {
+        "content": "## Генерируем статью в 3-х стилях\n## У каждой тройки свой batch_id",
+        "height": 368,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2720,
+        1920
+      ],
+      "typeVersion": 1,
+      "id": "514eb30a-0dab-4a34-acba-f04549de08b6",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "jsCode": "let result = [];\n\n// Функция для генерации короткого случайного ID\nconst generateId = () => Math.random().toString(36).substring(2, 9);\n\nfor (const item of items) {\n  const content = item.json.choices[0].message.content;\n\n  // Генерируем уникальный ID именно для этой итерации (для этой пачки из 3 постов)\n  const batchId = generateId(); \n\n  let parsed;\n\n  try {\n    parsed = JSON.parse(content);\n  } catch (e) {\n    result.push({\n      json: {\n        error: \"JSON parse error\",\n        raw: content\n      }\n    });\n    continue;\n  }\n\n  // Добавляем batch_id к каждому объекту в этой тройке\n  result.push(\n    { json: { type: \"expert\", text: parsed.expert, batch_id: batchId } },\n    { json: { type: \"story\", text: parsed.story, batch_id: batchId } },\n    { json: { type: \"provocation\", text: parsed.provocation, batch_id: batchId } }\n  );\n}\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2480,
+        2048
+      ],
+      "id": "321c1d25-8c46-4d14-bdc1-780b2feb3b47",
+      "name": "text x 3"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -3184,
+        1648
+      ],
+      "id": "49fa7164-cd14-40de-b168-3660da604a59",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Берем все входящие данные\nconst items = $input.all();\n\n// Склеиваем историю\nconst historyList = items.map(item => item.json.query).filter(q => q).join(', ');\n\n// ВАЖНО: Мы возвращаем НОВЫЙ массив. \n// Это разрывает цепочку \"много элементов на входе\"\nreturn [\n  {\n    json: {\n      history: historyList || \"записей нет, предложи темы сам\"\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2800,
+        1648
+      ],
+      "id": "dfc839f8-ba0c-4d82-a3ef-ca39473cee36",
+      "name": "Parser"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "latest_content_history",
+        "limit": 20
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2976,
+        1648
+      ],
+      "id": "434188bb-798d-4a4d-8c87-f1abbcf8f57e",
+      "name": "Get many rows Query",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "http://localhost"
+            },
+            {
+              "name": "X-Title",
+              "value": "n8n-content-factory"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"google/gemini-2.0-flash-001\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Ты — эксперт по контенту. Твой ответ — это всегда JSON с массивом из 2 тем. Не пиши ничего, кроме JSON.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Вот история: [ {{ $json.history }} ]. Напиши ровно 2 новые темы про биохакинг и флоатинг. Формат: {\\\"topics\\\": [\\\"theme1\\\", \\\"theme2\\\"]}\"\n    }\n  ],\n  \"response_format\": { \"type\": \"json_object\" }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -2608,
+        1648
+      ],
+      "id": "304a4401-6b0e-4b0d-aa7e-d8dd61b5d5a6",
+      "name": "generating new queries",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "2v7q3pqcReZyrcNh",
+          "name": "openrouter.ai Bearer Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Парсим ответ от ИИ (он приходит в виде строки в формате JSON)\nconst response = JSON.parse($json.choices[0].message.content);\n\n// Превращаем массив строк [\"topic1\", \"topic2\"...] \n// в список объектов [{json: {query: \"topic1\"}}, ...]\nreturn response.topics.map(topic => {\n  return {\n    json: {\n      query: topic\n    }\n  };\n});"
+      },
+      "id": "3522d37a-fcb4-4254-b885-3b69df9bc29a",
+      "name": "Query splitting",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -2416,
+        1648
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "posts",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $json.text }}"
+            },
+            {
+              "fieldId": "type",
+              "fieldValue": "={{ $json.type }}"
+            },
+            {
+              "fieldId": "batch_id",
+              "fieldValue": "={{ $json.batch_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2224,
+        2048
+      ],
+      "id": "db7ea57d-e004-49f4-b554-a41015d15d04",
+      "name": "Text in a table",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "### Проверяем какие были последние 20 запросов в Тавили, чтобы не повторяться",
+        "height": 336,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3024,
+        1456
+      ],
+      "typeVersion": 1,
+      "id": "f4188ca3-7263-4fc6-91f5-9db6f799f1a4",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### Объединяем предыдущие данные в один запрос",
+        "height": 336,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2816,
+        1456
+      ],
+      "typeVersion": 1,
+      "id": "0482c16d-403e-4e81-b6eb-ccf7c60a9aa1",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "### Генерируем новые запросы (2 шт.)",
+        "height": 336,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2656,
+        1456
+      ],
+      "typeVersion": 1,
+      "id": "02510d6b-6f89-4ee8-b4bf-a97add567580",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "### разделяем запросы и по одному отправляем в Tavily",
+        "height": 336,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2448,
+        1456
+      ],
+      "typeVersion": 1,
+      "id": "da9f5761-622f-44c1-9f7a-8af9a9e7c153",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "### сохраняем запросы в таблицу, чтобы проверять и не повторяться",
+        "height": 336,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2224,
+        1456
+      ],
+      "typeVersion": 1,
+      "id": "1b1ca85a-2b20-4f1b-98bb-0972639f356b",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## Поиск статей, разделение",
+        "height": 368,
+        "width": 288
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3040,
+        1920
+      ],
+      "typeVersion": 1,
+      "id": "aff834e0-0330-4d4d-9a2e-ef6877eea41c",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "## Сохраняем посты в таблицу posts",
+        "height": 368
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2272,
+        1920
+      ],
+      "typeVersion": 1,
+      "id": "0258a345-08cc-40a2-90b8-11dfd8325de7",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"query\": \"{{$json.query}}\",\n\"search_depth\": \"advanced\",\n\"max_results\": 3\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -3024,
+        2048
+      ],
+      "id": "58610100-ab90-4895-80fa-bdbb025890f4",
+      "name": "Tavily",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "SQ42XATXhyMhysYV",
+          "name": "https://api.tavily.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "content_history",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "query",
+              "fieldValue": "={{ $json.query }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2176,
+        1648
+      ],
+      "id": "2b09e810-8603-4ff4-9c88-b7f9b60ab7c4",
+      "name": "enter the query into the table",
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extract": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request OpenRouter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request OpenRouter": {
+      "main": [
+        [
+          {
+            "node": "text x 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "text x 3": {
+      "main": [
+        [
+          {
+            "node": "Text in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get many rows Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parser": {
+      "main": [
+        [
+          {
+            "node": "generating new queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows Query": {
+      "main": [
+        [
+          {
+            "node": "Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generating new queries": {
+      "main": [
+        [
+          {
+            "node": "Query splitting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query splitting": {
+      "main": [
+        [
+          {
+            "node": "enter the query into the table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text in a table": {
+      "main": [
+        [
+          {
+            "node": "StartPostVK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "enter the query into the table": {
+      "main": [
+        [
+          {
+            "node": "Tavily",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily": {
+      "main": [
+        [
+          {
+            "node": "Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "esCmg3Bye5BL0S2D"
+  },
+  "versionId": "e992b430-17b7-4703-ba4d-c8797039fa4f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f4300700b5a89163b88ad6a908ff9e3076c705e8b03a3f40f03ff2f29f7e4289"
+  },
+  "id": "zx5gV1HTX3Vtj4SM",
+  "tags": []
+}

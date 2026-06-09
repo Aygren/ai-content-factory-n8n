@@ -1,0 +1,395 @@
+{
+  "name": "VK button press processing",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -3968,
+        1520
+      ],
+      "id": "4fb92eff-78e0-49ea-aa64-9d12735224f6",
+      "name": "Start_Prepost_VK"
+    },
+    {
+      "parameters": {
+        "content": "## Получаем сигнал из первого WF -Отправка первой партии поста в трёх разных стилях администратору на рассмотрение\n\n## Либо получаем сигнал от WF, который ловит CallBack - получение поста со статусом editing",
+        "height": 368,
+        "width": 576
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4384,
+        1296
+      ],
+      "typeVersion": 1,
+      "id": "acf96f44-59f5-4335-9dd3-b22774f6a834",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "posts",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "pending"
+            }
+          ]
+        }
+      },
+      "id": "9cdc6465-e1e7-4939-9bfc-85b39d481eb1",
+      "name": "Find Next Batch ID",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3472,
+        1872
+      ],
+      "alwaysOutputData": true,
+      "retryOnFail": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "posts",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "batch_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.batch_id }}"
+            },
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "pending"
+            }
+          ]
+        }
+      },
+      "id": "de8d1c90-799c-4ccb-b034-a851a22d02bf",
+      "name": "Get All 3 Posts",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3120,
+        1856
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Отправляем администратору на проверку.\n## С кнопками выбора дальнейших действий\n## Либо одна строка со статусом \"editing\" либо 3 строки с одинаковым batch_id\n",
+        "height": 384,
+        "width": 656
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3248,
+        1296
+      ],
+      "typeVersion": 1,
+      "id": "695b60d5-901d-4f72-b23c-aeee71b638e8",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vk.com/method/messages.send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "peer_id",
+              "value": "=13330125"
+            },
+            {
+              "name": "random_id",
+              "value": "={{ Math.floor(Math.random() * 2147483647) }}"
+            },
+            {
+              "name": "v",
+              "value": "5.199"
+            },
+            {
+              "name": "message",
+              "value": "=Все посты просмотрены. По всем приняты решения."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -3120,
+        2176
+      ],
+      "id": "cc49a947-68d4-4f3b-8f18-4c93fb99a704",
+      "name": "GameOver",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "aSZaIFU7bYbuGD7X",
+          "name": "VK_bearer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d69d5b7e-7c88-40b6-813b-c4f6c72fdfa0",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "editing",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "20146594-59e2-4889-8dc8-2f791be01fb1",
+              "leftValue": "={{ $json.from_editor }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3728,
+        1520
+      ],
+      "id": "6dce96b0-67b1-41ec-b63a-09ec52f00bef",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vk.com/method/messages.send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "peer_id",
+              "value": "=13330125"
+            },
+            {
+              "name": "random_id",
+              "value": "={{ Math.floor(Math.random() * 2147483647) }}"
+            },
+            {
+              "name": "v",
+              "value": "5.199"
+            },
+            {
+              "name": "message",
+              "value": "={{ 'Пост №' + $json.id + ' [' + $json.type.toUpperCase() + '] на согласование: ' + $json.content }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "keyboard",
+              "value": "={\n  \"inline\": true,\n  \"buttons\": [\n    [\n      {\n        \"action\": {\n          \"type\": \"text\",\n          \"label\": \"✅ Пост {{$json.id}} - Одобрить\",\n          \"payload\": \"{\\\"status\\\":\\\"approve\\\",\\\"id\\\":\\\"{{$json.id}}\\\",\\\"batch_id\\\":\\\"{{$json.batch_id}}\\\"}\"\n        },\n        \"color\": \"positive\"\n      },\n      {\n        \"action\": {\n          \"type\": \"text\",\n          \"label\": \"❌ Пост {{$json.id}} - Отклонить\",\n          \"payload\": \"{\\\"status\\\":\\\"decline\\\",\\\"id\\\":\\\"{{$json.id}}\\\",\\\"batch_id\\\":\\\"{{$json.batch_id}}\\\"}\"\n        },\n        \"color\": \"negative\"\n      }\n    ],\n    [\n      {\n        \"action\": {\n          \"type\": \"text\",\n          \"label\": \"✍️ Пост {{$json.id}} - Редактировать\",\n          \"payload\": \"{\\\"status\\\":\\\"edit\\\",\\\"id\\\":\\\"{{$json.id}}\\\",\\\"batch_id\\\":\\\"{{$json.batch_id}}\\\"}\"\n        },\n        \"color\": \"primary\"\n      }\n    ]\n  ]\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -2864,
+        1504
+      ],
+      "name": "VK_Presentation_with_button",
+      "id": "064a8e1c-2b22-40c6-bb78-fa55d875a239",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "aSZaIFU7bYbuGD7X",
+          "name": "VK_bearer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Отбираем строки с таким же batch_id b статусом pedding",
+        "height": 304,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3200,
+        1728
+      ],
+      "typeVersion": 1,
+      "id": "5d47fcf0-7230-40ab-93a5-d22c76109edb",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Если статус строки - \"редактирование\", то сразу отправляем на проверку",
+        "height": 368,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3776,
+        1296
+      ],
+      "typeVersion": 1,
+      "id": "79acee56-f677-4396-8f8d-5ce80d650b24",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Определяем, какой batch_id у строки со статусом pending",
+        "height": 304,
+        "width": 544
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3776,
+        1728
+      ],
+      "typeVersion": 1,
+      "id": "699c75d2-6c93-4fa9-a311-738cd964d338",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Все посты просмотрены.\n## По всем приняты решения.",
+        "height": 272,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3200,
+        2080
+      ],
+      "typeVersion": 1,
+      "id": "d950454f-e513-4369-a5e9-3a53eee51fea",
+      "name": "Sticky Note6"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start_Prepost_VK": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Next Batch ID": {
+      "main": [
+        [
+          {
+            "node": "Get All 3 Posts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GameOver",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All 3 Posts": {
+      "main": [
+        [
+          {
+            "node": "VK_Presentation_with_button",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "VK_Presentation_with_button",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find Next Batch ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "3005f9ec-342a-4b06-857c-12dea4512f0d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f4300700b5a89163b88ad6a908ff9e3076c705e8b03a3f40f03ff2f29f7e4289"
+  },
+  "id": "tE8IN3d4WCV7rHQw",
+  "tags": []
+}

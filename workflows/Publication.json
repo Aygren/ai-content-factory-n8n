@@ -1,0 +1,579 @@
+{
+  "name": "Publication",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1600,
+        512
+      ],
+      "id": "9b93bca9-be1c-4828-8b79-05d6dade1013",
+      "name": "Wait",
+      "webhookId": "5ac75ebf-7a14-4e2c-b0c5-da8f5b1d41cc"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "succeeded",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d14a9732-e11e-4f1e-a4d9-0587d1a4a2dd"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "succeeded"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "07961715-2e68-44bc-83cc-c36396959107",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "failed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "fail"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "waiting | processing | generating | starting"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1808,
+        320
+      ],
+      "id": "04bb8391-c6de-4b36-8d94-5f4e79d97e47",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Ошибка генерации"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -1600,
+        336
+      ],
+      "id": "2519eb88-fa22-488a-94a6-38d8117e238c",
+      "name": "Stop and Error1"
+    },
+    {
+      "parameters": {
+        "content": "# Генерация изображения Replicate - imagen-4",
+        "height": 192,
+        "width": 544,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2896,
+        112
+      ],
+      "id": "8f0c6ab5-8334-4ae6-90b1-6f7dcd01c763",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Установка промпта",
+        "height": 288,
+        "width": 160
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2304,
+        192
+      ],
+      "id": "07f905ca-b842-4402-ae5b-f6f5ff1a5fde",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Создание задачи для генерации картинки",
+        "height": 352,
+        "width": 224,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2112,
+        160
+      ],
+      "id": "89e4f30c-bf51-46d7-bc5b-66c9ddb33df5",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Проверка статуса генерации",
+        "height": 352,
+        "width": 192,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1856,
+        160
+      ],
+      "id": "c6a5e683-9356-43b8-9037-9dfda44f64fc",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Генерация завершена.\n## Загружаем картинку. Для отправки во вконтакте нужно получить ссылки, кэши так далее.\n## Публикуем картинку и текст в сообщество.",
+        "height": 368,
+        "width": 1088
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1616,
+        -96
+      ],
+      "id": "ebc89ee8-e850-443e-95b9-382624032786",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1584,
+        112
+      ],
+      "id": "1359c954-2f39-46bb-9c73-1839ab0a1207",
+      "name": "Download Image"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2656,
+        336
+      ],
+      "id": "e8c29fb7-5bbd-4088-8c66-27aff196b2c7",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vk.com/method/wall.post",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "owner_id",
+              "value": "-237505120"
+            },
+            {
+              "name": "from_group",
+              "value": "1"
+            },
+            {
+              "name": "message",
+              "value": "={{ $('GetRow').item.json.content }}"
+            },
+            {
+              "name": "v",
+              "value": "5.199"
+            },
+            {
+              "name": "attachments",
+              "value": "=photo{{ $node[\"VK Save Photo\"].json.response[0].owner_id }}_{{ $node[\"VK Save Photo\"].json.response[0].id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "090c6162-92b9-49b7-9c31-79b8b6938249",
+      "name": "VK Publish Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -736,
+        112
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "xzoIBFrxdhYjbNd5",
+          "name": "ВконтактеKateMobile"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.vk.com/method/photos.getWallUploadServer",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "group_id",
+              "value": "237505120"
+            },
+            {
+              "name": "v",
+              "value": "5.199"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "42158015-923f-4254-b520-61265fa00761",
+      "name": "VK Get Upload Server",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -1376,
+        112
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "xzoIBFrxdhYjbNd5",
+          "name": "ВконтактеKateMobile"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.response.upload_url }}",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "photo",
+              "inputDataFieldName": "={{ $node[\"Download Image\"].binary.data }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1ad618ef-c808-40de-ac6e-705c50bcff8e",
+      "name": "VK Upload File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -1152,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vk.com/method/photos.saveWallPhoto",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "group_id",
+              "value": "237505120"
+            },
+            {
+              "name": "photo",
+              "value": "={{ $node[\"VK Upload File\"].json.photo }}"
+            },
+            {
+              "name": "server",
+              "value": "={{ $node[\"VK Upload File\"].json.server }}"
+            },
+            {
+              "name": "hash",
+              "value": "={{ $node[\"VK Upload File\"].json.hash }}"
+            },
+            {
+              "name": "v",
+              "value": "5.199"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7af7021e-2613-4c42-88bc-54781151978d",
+      "name": "VK Save Photo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -944,
+        112
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "xzoIBFrxdhYjbNd5",
+          "name": "ВконтактеKateMobile"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Задаем наборы ключевых слов для флоатинга\nconst moods = [\n  \"deep relaxation, silk water, slow motion\",\n  \"inner peace, soft focus, ethereal glow\",\n  \"weightless suspension, cosmic tranquility, liquid zen\"\n];\n\n// Выбираем случайное настроение, чтобы картинки всегда были разными\nconst randomMood = moods[Math.floor(Math.random() * moods.length)];\n\nconst baseStyle = \"abstract fluid art, minimal composition, ethereal water ripples, soft pastel lighting, zen atmosphere, high resolution, no text, no letters\";\n\nreturn {\n  model: \"google/imagen4-fast\",\n  // Теперь в промпте НЕТ русского текста, только чистые визуальные команды\n  prompt: `A serene visual representation of ${randomMood}. Aesthetic: ${baseStyle}`,\n  aspect_ratio: \"16:9\"\n};"
+      },
+      "id": "0499caaf-7598-4da6-bcea-4e91b03b45d4",
+      "name": "Prepare Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2272,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.replicate.com/v1/models/google/imagen-4/predictions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "wait"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"input\": {\n    \"prompt\": \"{{ $json.prompt }}\",\n    \"aspect_ratio\": \"16:9\",\n    \"safety_filter_level\": \"block_medium_and_above\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2048,
+        336
+      ],
+      "id": "e1bed8b9-1f75-4838-9ba5-0138e764eb4b",
+      "name": "Create Task Replicate",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "3QhGke9QiuLJ0Xxl",
+          "name": "Replicate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "posts",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2464,
+        336
+      ],
+      "id": "fe63b269-2ddd-4ec4-8683-08d1b4d70136",
+      "name": "GetRow",
+      "credentials": {
+        "supabaseApi": {
+          "id": "gfkW3g1N4dvhLUAx",
+          "name": "Supabase_Floating"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "GetRow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VK Get Upload Server": {
+      "main": [
+        [
+          {
+            "node": "VK Upload File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VK Upload File": {
+      "main": [
+        [
+          {
+            "node": "VK Save Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VK Save Photo": {
+      "main": [
+        [
+          {
+            "node": "VK Publish Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "VK Get Upload Server",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Data": {
+      "main": [
+        [
+          {
+            "node": "Create Task Replicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Task Replicate": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetRow": {
+      "main": [
+        [
+          {
+            "node": "Prepare Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "esCmg3Bye5BL0S2D",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "294540b8-0bd2-4db1-8a07-86574a635245",
+  "meta": {
+    "instanceId": "f4300700b5a89163b88ad6a908ff9e3076c705e8b03a3f40f03ff2f29f7e4289"
+  },
+  "id": "ftCjBlqfWHdLUfRk",
+  "tags": []
+}

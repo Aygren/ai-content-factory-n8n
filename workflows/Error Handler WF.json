@@ -1,0 +1,86 @@
+{
+  "name": "Error Handler WF",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vk.com/method/messages.send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "user_id",
+              "value": "13330125"
+            },
+            {
+              "name": "random_id",
+              "value": "={{ Math.floor(Math.random() * 2147483647) }}"
+            },
+            {
+              "name": "v",
+              "value": "5.199"
+            },
+            {
+              "name": "message",
+              "value": "=В одном из WF произошла какая-то ошибка! Error in workflow: {{ $workflow.name }} (ID: {{ $workflow.id }}){{ $json.execution.url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "78c9ee24-afc4-4d01-879b-d650315331b8",
+      "name": "Send VK Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        320,
+        16
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "aSZaIFU7bYbuGD7X",
+          "name": "VK_bearer"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        128,
+        16
+      ],
+      "id": "2647581e-eb8e-4038-b8c9-1358b56622ed",
+      "name": "Error Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send VK Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "e3ed861f-1c2e-4335-a327-a778f2c96454",
+  "meta": {
+    "instanceId": "f4300700b5a89163b88ad6a908ff9e3076c705e8b03a3f40f03ff2f29f7e4289"
+  },
+  "id": "esCmg3Bye5BL0S2D",
+  "tags": []
+}
