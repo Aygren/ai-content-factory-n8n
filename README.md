@@ -27,7 +27,7 @@
   <img src="images/01_create_row.png" alt="CreateRow Workflow" width="100%">
 </details>
 
-2. **[02_Edit Content.json](workflows/02_Edit Content.json)** — ИИ-модуль корректировки. Отвечает за обработку правок от пользователя, локальный рерайтинг текста языковой моделью и обновление контента.
+2. **[02_Edit Content.json](workflows/02_Edit%20Content.json)** — ИИ-модуль корректировки. Отвечает за обработку правок от пользователя, локальный рерайтинг текста языковой моделью и обновление контента.
 <details>
   <summary>🔍 Посмотреть схему воркфлоу</summary>
   <br>
